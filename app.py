@@ -9,17 +9,16 @@ GitHub: https://github.com/prasunroy/air-writing
 
 
 # imports
-from __future__ import division
-from __future__ import print_function
-
 import sys
 import webbrowser
 
 from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtGui import QIcon, QImage, QMovie, QPixmap
+from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QWidget
 from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QDesktopWidget, QLabel, QPushButton
+
+from camera import VideoStream
 
 
 # MainGUI class
@@ -50,7 +49,7 @@ class MainGUI(QWidget):
         
         # -- camera feed --
         self.cam_feed = QLabel()
-        self.cam_feed.setMinimumSize(640, 360)
+        self.cam_feed.setMinimumSize(640, 480)
         self.cam_feed.setAlignment(Qt.AlignCenter)
         self.cam_feed.setFrameStyle(QFrame.StyledPanel)
         self.cam_feed.setStyleSheet('QLabel {background-color: #000000;}')
@@ -113,7 +112,7 @@ class MainGUI(QWidget):
         if self.flg_conn:
             self.btn_conn.setStyleSheet(self.btn_conn_style_1)
             self.btn_conn.setText('Disconnect Camera')
-            # self.camera = None
+            self.video = VideoStream()
             self.timer = QTimer()
             self.timer.timeout.connect(self.update)
             self.timer.start(50)
@@ -122,22 +121,31 @@ class MainGUI(QWidget):
             self.btn_conn.setText('Connect Camera')
             self.cam_feed.clear()
             self.timer.stop()
-            # self.camera.clear()
+            self.video.clear()
         
         return
     
     # ~~~~~~~~ update ~~~~~~~~
     def update(self):
-#        self.camera.setFrameSize((None, self.cam_feed.height()))
-#        frame = self.camera.getFrame()
-#        frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
-#        self.cam_feed.setPixmap(QPixmap.fromImage(frame))
+        frame = self.video.getFrame()
+        if not frame is None:
+            frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
+            self.cam_feed.setPixmap(QPixmap.fromImage(frame))
+        else:
+            self.cam_feed.clear()
         
         return
     
     # ~~~~~~~~ open repository ~~~~~~~~
     def openRepository(self):
         webbrowser.open('https://github.com/prasunroy/air-writing')
+        
+        return
+    
+    # ~~~~~~~~ resize event ~~~~~~~~
+    def resizeEvent(self, event):
+        if self.flg_conn:
+            self.video.setFrameSize((self.cam_feed.width(), self.cam_feed.height()))
         
         return
     
