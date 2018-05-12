@@ -31,12 +31,12 @@ class VideoStream(object):
         return
     
     # ~~~~~~~~ get frame from device ~~~~~~~~
-    def getFrame(self):
+    def getFrame(self, flip=None):
         self.frame = self.video.read()[1]
-        
         if not self.frame is None:
             self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-            self.frame = cv2.flip(self.frame, 1)
+            if type(flip) is int:
+                self.frame = cv2.flip(self.frame, flip)
         
         return self.frame
     

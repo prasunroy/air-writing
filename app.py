@@ -127,7 +127,7 @@ class MainGUI(QWidget):
     
     # ~~~~~~~~ update ~~~~~~~~
     def update(self):
-        frame = self.video.getFrame()
+        frame = self.video.getFrame(flip=1)
         if not frame is None:
             frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
@@ -139,13 +139,6 @@ class MainGUI(QWidget):
     # ~~~~~~~~ open repository ~~~~~~~~
     def openRepository(self):
         webbrowser.open('https://github.com/prasunroy/air-writing')
-        
-        return
-    
-    # ~~~~~~~~ resize event ~~~~~~~~
-    def resizeEvent(self, event):
-        if self.flg_conn:
-            self.video.setFrameSize((self.cam_feed.width(), self.cam_feed.height()))
         
         return
     
@@ -163,5 +156,6 @@ if __name__ == '__main__':
     app.setStyle('Fusion')
     gui = MainGUI()
     gui.show()
+    gui.setFixedSize(gui.size())
     gui.moveWindowToCenter()
     sys.exit(app.exec_())
