@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QDesktopWidget, QLabel, QPushButton
 
 from camera import VideoStream
+from pipeline import Pipeline
 
 
 # MainGUI class
@@ -27,7 +28,14 @@ class MainGUI(QWidget):
     # ~~~~~~~~ constructor ~~~~~~~~
     def __init__(self):
         super().__init__()
+        self.init_pipeline()
         self.init_UI()
+        
+        return
+    
+    # ~~~~~~~~ initialize pipeline ~~~~~~~~
+    def init_pipeline(self):
+        self.pipeline = Pipeline()
         
         return
     
