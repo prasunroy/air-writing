@@ -63,7 +63,7 @@ class MainGUI(QWidget):
         self.cam_feed.setFrameStyle(QFrame.StyledPanel)
         self.cam_feed.setStyleSheet('QLabel {background-color: #000000;}')
         
-        # ---- recognition engine selection buttons ----
+        # -- recognition engine selection buttons --
         self.btn_engine_style_0 = 'QPushButton {background-color: #646464; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 14px;}'
         self.btn_engine_style_1 = 'QPushButton {background-color: #6464ff; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 14px;}'
         self.btn_en = QPushButton('English Numerals')
@@ -75,6 +75,18 @@ class MainGUI(QWidget):
         self.btn_dv = QPushButton('Devanagari Numerals')
         self.btn_dv.setMinimumSize(150, 30)
         self.btn_dv.setStyleSheet(self.btn_engine_style_0)
+        
+        # -- inference results --
+        self.disp_pred = QLabel('!')
+        self.disp_pred.setMinimumHeight(250)
+        self.disp_pred.setAlignment(Qt.AlignCenter)
+        self.disp_pred.setFrameStyle(QFrame.NoFrame)
+        self.disp_pred.setStyleSheet('QLabel {background-color: #ffffff; color: #646464; font-family: ubuntu, arial; font-size: 200px;}')
+        self.disp_prob = QLabel('Confidence 0.0%')
+        self.disp_prob.setMinimumHeight(20)
+        self.disp_prob.setAlignment(Qt.AlignCenter)
+        self.disp_prob.setFrameStyle(QFrame.NoFrame)
+        self.disp_prob.setStyleSheet('QLabel {background-color: #ffffff; color: #646464; font-family: ubuntu, arial; font-size: 20px;}')
         
         # -- repository link button --
         self.btn_repo = QPushButton()
@@ -90,6 +102,13 @@ class MainGUI(QWidget):
         self.copyright.setAlignment(Qt.AlignCenter)
         self.copyright.setStyleSheet('QLabel {background-color: #ffffff; font-family: ubuntu, arial; font-size: 14px;}')
         
+        # -- placeholder --
+        self.placeholder = QLabel()
+        self.placeholder.setFixedSize(20, 20)
+        self.placeholder.setAlignment(Qt.AlignCenter)
+        self.placeholder.setFrameStyle(QFrame.NoFrame)
+        self.placeholder.setStyleSheet('QLabel {background-color: #646464;}')
+        
         # create layouts
         h_box1 = QHBoxLayout()
         h_box1.addWidget(self.btn_conn)
@@ -100,14 +119,24 @@ class MainGUI(QWidget):
         h_box2.addWidget(self.btn_dv)
         
         h_box3 = QHBoxLayout()
-        h_box3.addWidget(self.btn_repo)
-        h_box3.addWidget(self.copyright)
+        h_box3.addWidget(self.disp_pred)
+        
+        h_box4 = QHBoxLayout()
+        h_box4.addWidget(self.disp_prob)
+        
+        h_box5 = QHBoxLayout()
+        h_box5.addWidget(self.btn_repo)
+        h_box5.addWidget(self.copyright)
+        h_box5.addWidget(self.placeholder)
         
         v_box1 = QVBoxLayout()
         v_box1.addLayout(h_box1)
         v_box1.addLayout(h_box2)
         v_box1.addStretch()
         v_box1.addLayout(h_box3)
+        v_box1.addLayout(h_box4)
+        v_box1.addStretch()
+        v_box1.addLayout(h_box5)
         
         v_box2 = QVBoxLayout()
         v_box2.addWidget(self.cam_feed)
@@ -153,6 +182,8 @@ class MainGUI(QWidget):
             self.cam_feed.clear()
             self.timer.stop()
             self.video.clear()
+            self.disp_pred.setText('!')
+            self.disp_prob.setText('Confidence 0.0%')
         
         return
     
@@ -161,9 +192,13 @@ class MainGUI(QWidget):
         frame = self.video.getFrame(flip=1)
         if not frame is None:
             prediction, predprobas, mask, frame = self.pipeline.run_inference(frame, self.engine)
-            print(prediction, predprobas)
+            
             frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
+            if not prediction is None:
+                self.disp_pred.setText(prediction[0])
+            if not predprobas is None:
+                self.disp_prob.setText('Confidence {:.1f}%'.format(float(predprobas[0])*100))
         else:
             self.cam_feed.clear()
         

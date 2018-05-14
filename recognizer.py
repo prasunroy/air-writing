@@ -162,7 +162,7 @@ class Recognizer(object):
                 prob = self._model_dv.predict(image)
             
             pred = numpy.argmax(prob)
-            prob = numpy.round(numpy.max(prob), 2)
+            prob = numpy.round(numpy.max(prob), 4)
             
             # append result to list
             prediction.append(str(pred))
