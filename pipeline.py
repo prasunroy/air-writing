@@ -14,6 +14,8 @@ from __future__ import division
 import cv2
 import numpy
 
+from recognizer import Recognizer
+
 
 # Pipeline class
 class Pipeline(object):
@@ -52,6 +54,9 @@ class Pipeline(object):
         # render elements
         self._render_marker = True
         self._render_trails = True
+        
+        # recognizer
+        self._recognizer = Recognizer()
         
         # opencv version
         self._opencv_version = int(cv2.__version__.split('.')[0])
@@ -103,8 +108,7 @@ class Pipeline(object):
     
     # ~~~~~~~~ trajectory approximation ~~~~~~~~
     def _trajectory_approximation(self, marker_tip, frame):
-        image = numpy.zeros_like(frame, dtype='uint8')
-        
+        image = None
         if marker_tip is None:
             # reset marker
             self._x = -1
@@ -140,16 +144,19 @@ class Pipeline(object):
             self._vy = numpy.floor(sum(self._histdy[-self._fps:]) / self._fps)
             
             # draw trajectory of marker if marker is in static state
-            n = len(self._points)
-            if n > 1:
-                for i in range(n-1):
+            nodes = len(self._points)
+            if nodes > 1:
+                image = numpy.zeros((frame.shape[0], frame.shape[1]), dtype='uint8')
+                for i in range(nodes-1):
                     cv2.line(image, self._points[i], self._points[i+1], (255, 255, 255), 4, cv2.LINE_AA)
         
         return image
     
     # ~~~~~~~~ character recognition ~~~~~~~~
-    def _character_recognition(self, image):
-        return
+    def _character_recognition(self, image, engine):
+        predictions = self._recognizer.predict(image, engine)
+        
+        return predictions
     
     # ~~~~~~~~ render frame ~~~~~~~~
     def _render(self, frame):
@@ -165,7 +172,7 @@ class Pipeline(object):
         return frame
     
     # ~~~~~~~~ run inference ~~~~~~~~
-    def run_inference(self, frame):
+    def run_inference(self, frame, engine='EN'):
         # STEP-A: marker segmentation
         mask = self._marker_segmentation(frame)
         
@@ -176,9 +183,25 @@ class Pipeline(object):
         image = self._trajectory_approximation(self._marker_tip, frame)
         
         # STEP-D: character recognition
-        preds = self._character_recognition(image)
+        if not image is None and self._vx < self._min_veloxy and self._vy < self._min_veloxy:
+            prediction, predprobas = self._character_recognition(image, engine)
+            
+            # reset marker
+            self._x = -1
+            self._y = -1
+            self._dx = 0
+            self._dy = 0
+            self._vx = 0
+            self._vy = 0
+            self._histdx = []
+            self._histdy = []
+            self._points = []
+            self._marker_ctr = None
+            self._marker_tip = None
+        else:
+            prediction, predprobas = [None, None]
         
         # render frame
         frame = self._render(frame)
         
-        return frame
+        return [prediction, predprobas, mask, frame]

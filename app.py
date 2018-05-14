@@ -137,6 +137,8 @@ class MainGUI(QWidget):
     def update(self):
         frame = self.video.getFrame(flip=1)
         if not frame is None:
+            prediction, predprobas, mask, frame = self.pipeline.run_inference(frame)
+            print(prediction, predprobas)
             frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
         else:
