@@ -102,12 +102,12 @@ class MainGUI(QWidget):
         self.copyright.setAlignment(Qt.AlignCenter)
         self.copyright.setStyleSheet('QLabel {background-color: #ffffff; font-family: ubuntu, arial; font-size: 14px;}')
         
-        # -- placeholder --
-        self.placeholder = QLabel()
-        self.placeholder.setFixedSize(20, 20)
-        self.placeholder.setAlignment(Qt.AlignCenter)
-        self.placeholder.setFrameStyle(QFrame.NoFrame)
-        self.placeholder.setStyleSheet('QLabel {background-color: #646464;}')
+        # -- indicator --
+        self.indicator = QLabel()
+        self.indicator.setFixedSize(20, 20)
+        self.indicator.setAlignment(Qt.AlignCenter)
+        self.indicator.setFrameStyle(QFrame.NoFrame)
+        self.indicator.setStyleSheet('QLabel {background-color: #646464;}')
         
         # create layouts
         h_box1 = QHBoxLayout()
@@ -127,7 +127,7 @@ class MainGUI(QWidget):
         h_box5 = QHBoxLayout()
         h_box5.addWidget(self.btn_repo)
         h_box5.addWidget(self.copyright)
-        h_box5.addWidget(self.placeholder)
+        h_box5.addWidget(self.indicator)
         
         v_box1 = QVBoxLayout()
         v_box1.addLayout(h_box1)
@@ -149,6 +149,7 @@ class MainGUI(QWidget):
         
         # set slots for signals
         self.flg_conn = False
+        
         self.btn_conn.clicked.connect(self.connect)
         self.btn_en.clicked.connect(lambda: self.setRecognitionEngine('EN'))
         self.btn_bn.clicked.connect(lambda: self.setRecognitionEngine('BN'))
@@ -184,23 +185,32 @@ class MainGUI(QWidget):
             self.video.clear()
             self.disp_pred.setText('!')
             self.disp_prob.setText('Confidence 0.0%')
+            self.indicator.setStyleSheet('QLabel {background-color: #646464;}')
         
         return
     
     # ~~~~~~~~ update ~~~~~~~~
     def update(self):
+        # update frame
         frame = self.video.getFrame(flip=1)
         if not frame is None:
-            prediction, predprobas, mask, frame = self.pipeline.run_inference(frame, self.engine)
-            
+            prediction, predprobas, mask, frame = self.pipeline.run_inference(frame, self.engine, True)
             frame = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
-            if not prediction is None:
+            if not prediction is None and len(prediction) > 0:
                 self.disp_pred.setText(prediction[0])
-            if not predprobas is None:
+            if not predprobas is None and len(prediction) > 0:
                 self.disp_prob.setText('Confidence {:.1f}%'.format(float(predprobas[0])*100))
         else:
             self.cam_feed.clear()
+        
+        # update indicator
+        if self.pipeline._marker_tip is None:
+            self.indicator.setStyleSheet('QLabel {background-color: #646464;}')
+        elif self.pipeline._vx < 2.0 and self.pipeline._vy < 2.0:
+            self.indicator.setStyleSheet('QLabel {background-color: #f00000;}')
+        else:
+            self.indicator.setStyleSheet('QLabel {background-color: #00f000;}')
         
         return
     

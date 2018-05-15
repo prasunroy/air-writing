@@ -153,8 +153,8 @@ class Pipeline(object):
         return image
     
     # ~~~~~~~~ character recognition ~~~~~~~~
-    def _character_recognition(self, image, engine):
-        predictions = self._recognizer.predict(image, engine)
+    def _character_recognition(self, image, engine, mapping):
+        predictions = self._recognizer.predict(image, engine, mapping)
         
         return predictions
     
@@ -172,7 +172,7 @@ class Pipeline(object):
         return frame
     
     # ~~~~~~~~ run inference ~~~~~~~~
-    def run_inference(self, frame, engine='EN'):
+    def run_inference(self, frame, engine='EN', mapping=True):
         # STEP-A: marker segmentation
         mask = self._marker_segmentation(frame)
         
@@ -184,7 +184,7 @@ class Pipeline(object):
         
         # STEP-D: character recognition
         if not image is None and self._vx < self._min_veloxy and self._vy < self._min_veloxy:
-            prediction, predprobas = self._character_recognition(image, engine)
+            prediction, predprobas = self._character_recognition(image, engine, mapping)
             
             # reset marker
             self._x = -1

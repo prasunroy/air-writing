@@ -11,13 +11,14 @@ GitHub: https://github.com/prasunroy/air-writing
 # imports
 from __future__ import division
 
-# ---- compatibility for MKL 2018 ----
+# -- compatibility for MKL 2018 --
 import os
 os.environ["MKL_THREADING_LAYER"] = "GNU"
 
-# ---- main modules ----
+# -- main modules --
 import cv2
 import numpy
+
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
@@ -25,6 +26,8 @@ from keras.layers import Flatten
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras import backend
+
+import mapper
 
 
 # setup backend
@@ -110,7 +113,7 @@ class Recognizer(object):
         return image
     
     # ~~~~~~~~ predict ~~~~~~~~
-    def predict(self, image, engine='EN'):
+    def predict(self, image, engine='EN', mapping=True):
         # find contours in image
         if self._opencv_version == 2:
             contours = cv2.findContours(image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
@@ -161,7 +164,17 @@ class Recognizer(object):
             elif engine.upper() == 'DV':
                 prob = self._model_dv.predict(image)
             
-            pred = numpy.argmax(prob)
+            # map label
+            if mapping and engine.upper() == 'EN':
+                pred = chr(mapper.map2ascii_en_numbers[numpy.argmax(prob)])
+            elif mapping and engine.upper() == 'BN':
+                pred = mapper.map2unicode_bn_numbers[numpy.argmax(prob)]
+            elif mapping and engine.upper() == 'DV':
+                pred = mapper.map2unicode_dv_numbers[numpy.argmax(prob)]
+            else:
+                pred = numpy.argmax(prob)
+            
+            # estimate confidence
             prob = numpy.round(numpy.max(prob), 4)
             
             # append result to list
