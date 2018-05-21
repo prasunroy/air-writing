@@ -6,7 +6,7 @@
 ![badge](https://github.com/prasunroy/air-writing/blob/master/assets/badge_2.svg)
 
 ## Installation
-#### Step 1: Install [Anaconda](https://www.anaconda.com/download/) distribution of python 2.7 or 3.5+ (recommended)
+#### Step 1: Install [Anaconda](https://www.anaconda.com/download/) distribution of python 2.7+ or 3.5+ (recommended)
 #### Step 2: Update Anaconda
 ```
 conda update conda
