@@ -1,5 +1,5 @@
 # Air-Writing
-**A CNN based framework for multi-lingual unistroke numeral recognition in air-writing.**
+**A CNN based framework for multi-language unistroke numeral recognition in air-writing.**
 <img align='right' height='100' src='https://github.com/prasunroy/air-writing/blob/master/assets/logo.png' />
 
 ![badge](https://github.com/prasunroy/air-writing/blob/master/assets/badge_1.svg)
