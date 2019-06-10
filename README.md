@@ -1,7 +1,9 @@
 # Air-Writing
-**[ICFHR 2018] A CNN Based Framework for Unistroke Numeral Recognition in Air-Writing.**
+**A CNN Based Framework for Unistroke Numeral Recognition in Air-Writing.**
 
-**[arXiv](https://arxiv.org/abs/2303.07989)
+*Accepted in The IEEE International Conference on Frontiers in Handwriting Recognition (ICFHR) 2018.*
+
+**[[arXiv]](https://arxiv.org/abs/2303.07989)**
 <img align='right' height='100' src='https://github.com/prasunroy/air-writing/blob/master/assets/logo.png' />
 
 ![badge](https://github.com/prasunroy/air-writing/blob/master/assets/badge_1.svg)
@@ -57,5 +59,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 <br />
 <br />
+
+
+
+
 
 **Made with** :heart: **and GitHub**
